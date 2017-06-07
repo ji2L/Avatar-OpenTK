@@ -14,7 +14,7 @@ namespace TestOpenTK
 {
     class Game : GameWindow
     {
-        #region Fields and constructor
+        #region Fields and constructor (using the singleton pattern)
 
         /// <summary>
         /// Strores every object that will be drawn.
@@ -60,9 +60,39 @@ namespace TestOpenTK
         private float time = 0.0f;
 
         /// <summary>
+        /// Instance for the singleton pattern.
+        /// </summary>
+        private static Game instance = null;
+
+        /// <summary>
+        /// Used to make the implementation of the singleton pattern thread-safe
+        /// </summary>
+        private static readonly object padlock = new object();
+
+        /// <summary>
         /// Constructor : creates a 800*600 pixels window, with 32-bit color depth, 24 bits depth buffer, no stencil buffer, and 4x sampling for anti-aliasing
         /// </summary>
-        public Game() : base(800, 600, new GraphicsMode(32, 24, 0, 4)) { }
+        private Game() : base(800, 600, new GraphicsMode(32, 24, 0, 4)) { }
+
+        /// <summary>
+        /// Instance getter for the singleton pattern.
+        /// </summary>
+        public static Game Instance
+        {
+            get
+            {
+                // Only 1 thread can be there at a time (ensures that only 1 instance can be created).
+                lock (padlock)
+                {
+                    if (instance == null)
+                    {
+                        instance = new Game();
+                    }
+
+                    return instance;
+                }
+            }
+        }
 
         #endregion
 
