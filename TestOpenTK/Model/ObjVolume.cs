@@ -37,7 +37,7 @@ namespace TestOpenTK.Model
         /// <summary>
         /// Get indices to draw this object.
         /// </summary>
-        /// <param name="offset">Number of vertices buffered before this object</param>
+        /// <param name="offset">Number of vertices buffered before this object.</param>
         /// <returns>Returns an array of indices with offset applied.</returns>
         public override int[] GetIndices(int offset = 0)
         {

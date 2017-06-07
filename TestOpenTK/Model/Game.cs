@@ -83,6 +83,7 @@ namespace TestOpenTK
 
             activeShader = "textured";
 
+            // Add every boddy parts to the list of objects that will be displayed and load their respective textures.
             foreach (string s in Directory.EnumerateFiles(objPath))
             {
                 string partName = Path.GetFileNameWithoutExtension(s);
@@ -173,7 +174,8 @@ namespace TestOpenTK
 
             shaders[activeShader].EnableVertexAttribArrays();
 
-            int indiceat = 0;
+            // Draw every objects in the list.
+            int indiceat = 0; // Used to keep track of the indices that should be used next.
             foreach (Volume v in objects)
             {
                 GL.BindTexture(TextureTarget.Texture2D, v.TextureID);
@@ -203,13 +205,14 @@ namespace TestOpenTK
         {
             base.OnUpdateFrame(e);
 
+            //Global lists for storing the data that will be drawn.
             List<Vector3> verts = new List<Vector3>();
             List<Vector3> colors = new List<Vector3>();
             List<Vector2> texcoords = new List<Vector2>();
             List<int> inds = new List<int>();
 
+            // Add each objects data to global lists and keep track of their count.
             int vertcount = 0;
-
             foreach (Volume v in objects)
             {
                 verts.AddRange(v.GetVerts().ToList());
@@ -219,16 +222,18 @@ namespace TestOpenTK
                 vertcount += v.VertCount;
             }
 
+            // Global lists are passed to their respective fields as arrays so they can be bound.
             vertdata = verts.ToArray();
             coldata = colors.ToArray();
             texcoorddata = texcoords.ToArray();
             indicedata = inds.ToArray();
 
+            // Bind the vertices
             GL.BindBuffer(BufferTarget.ArrayBuffer, shaders[activeShader].GetBuffer("vPosition"));
-
             GL.BufferData<Vector3>(BufferTarget.ArrayBuffer, (IntPtr)(vertdata.Length * Vector3.SizeInBytes), vertdata, BufferUsageHint.StaticDraw);
             GL.VertexAttribPointer(shaders[activeShader].GetAttribute("vPosition"), 3, VertexAttribPointerType.Float, false, 0, 0);
 
+            // Bind the colors if they are specified.
             if (shaders[activeShader].GetAttribute("vColor") != -1)
             {
                 GL.BindBuffer(BufferTarget.ArrayBuffer, shaders[activeShader].GetBuffer("vColor"));
@@ -236,6 +241,7 @@ namespace TestOpenTK
                 GL.VertexAttribPointer(shaders[activeShader].GetAttribute("vColor"), 3, VertexAttribPointerType.Float, true, 0, 0);
             }
 
+            // Bind the textures coordinates if they are specified.
             if (shaders[activeShader].GetAttribute("texcoord") != -1)
             {
                 GL.BindBuffer(BufferTarget.ArrayBuffer, shaders[activeShader].GetBuffer("texcoord"));
@@ -243,9 +249,11 @@ namespace TestOpenTK
                 GL.VertexAttribPointer(shaders[activeShader].GetAttribute("texcoord"), 2, VertexAttribPointerType.Float, true, 0, 0);
             }
 
+            // Bind the indices.
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, ibo_elements);
             GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(indicedata.Length * sizeof(int)), indicedata, BufferUsageHint.StaticDraw);
 
+            // Make the objects move.
             time += (float)e.Time;
             foreach(Volume v in objects)
             {
@@ -254,6 +262,7 @@ namespace TestOpenTK
                 v.Scale = new Vector3(1.0f, 1.0f, 1.0f);
             }  
 
+            // Projects every objects so they can be seen.
             foreach (Volume v in objects)
             {
                 v.CalculateModelMatrix();
